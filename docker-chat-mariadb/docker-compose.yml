@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  db:
+    image: mariadb:11
+    container_name: mariadb_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: chatdb
+      MYSQL_USER: chatuser
+      MYSQL_PASSWORD: chatpass
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - chatnet
+
+  app:
+    build: ./app
+    container_name: chat_app_container
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    networks:
+      - chatnet
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin_container
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: rootpass
+    depends_on:
+      - db
+    networks:
+      - chatnet
+
+volumes:
+  db_data:
+
+networks:
+  chatnet:
+    driver: bridge
+
